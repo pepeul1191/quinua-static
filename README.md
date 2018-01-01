@@ -1,37 +1,71 @@
 # README
 
-Ejecutar migración
+Proyecto incial:
 
-	$ sequel -m path/to/migrations postgres://host/database
-	$ sequel -m path/to/migrations sqlite://db/accesos.db
+	 https://github.com/pepeul1191/ruby-gestion
 
-Ejecutar el 'down' de las migraciones de la última a la primera:
+Dependencias:
 
-	$ sequel -m db/migrations -M 0 sqlite://db/accesos.db
++ Servidor Lighttpd o Nginx con CORS habilidatado
++ NodeJS
++ Gulp y Bower
 
-Ejecutar el 'up' de las migraciones hasta un versión especifica:
+Instalación de Lighttpd Server
 
-	$ sequel -m db/migrations -M #version sqlite://db/accesos.db
+	$ sudo apt-get install lighttpd
 
-Tipos de Datos de Columnas
+Habilitar CORS y cambiar de puerto:
 
-	+ :string=>String
-	+ :integer=>Integer
-	+ :date=>Date
-	+ :datetime=>[Time, DateTime].freeze, 
-	+ :time=>Sequel::SQLTime, 
-	+ :boolean=>[TrueClass, FalseClass].freeze, 
-	+ :float=>Float
-	+ :decimal=>BigDecimal
-	+ :blob=>Sequel::SQL::Blob
+	$ sudo nano /etc/lighttpd/lighttpd.conf
+
+```
+server.modules = (
+	"mod_access",
+	"mod_alias",
+	"mod_compress",
+ 	"mod_redirect",
+#       "mod_rewrite",
+)
+
+server.modules += ( "mod_setenv" )
+
+server.document-root        = "/home/pepe/Documentos/lighttpd"
+server.upload-dirs          = ( "/var/cache/lighttpd/uploads" )
+server.errorlog             = "/var/log/lighttpd/error.log"
+server.pid-file             = "/var/run/lighttpd.pid"
+server.username             = "www-data"
+server.groupname            = "www-data"
+server.port                 = 81
+
+setenv.add-response-header =  ( "Access-Control-Allow-Origin" => "http://localhost:3000")
+
+index-file.names            = ( "index.php", "index.html", "index.lighttpd.html" )
+url.access-deny             = ( "~", ".inc" )
+static-file.exclude-extensions = ( ".php", ".pl", ".fcgi" )
+
+compress.cache-dir          = "/var/cache/lighttpd/compress/"
+compress.filetype           = ( "application/javascript", "text/css", "text/html", "text/plain" )
+
+# default listening port for IPv6 falls back to the IPv4 port
+## Use ipv6 if available
+#include_shell "/usr/share/lighttpd/use-ipv6.pl " + server.port
+include_shell "/usr/share/lighttpd/create-mime.assign.pl"
+include_shell "/usr/share/lighttpd/include-conf-enabled.pl"
+```
+
+	$ sudo service lighttpd restart
+
+Instalación de dependencias
+
+	$ bower install && npm install
+
+Generación de archivos con Gulp:
+
+	$ gulp layout app swp-plugins accesos maestros estaciones agricultores 
 
 ---
 
 ### Fuentes:
 
-+ https://snippets.aktagon.com/snippets/257-how-to-use-activerecord-without-rails
-+ https://github.com/jeremyevans/sequel/blob/master/doc/schema_modification.rdoc
-+ http://sequel.jeremyevans.net/rdoc/files/doc/migration_rdoc.html
-+ http://www.rubydoc.info/gems/sequel/4.38.0/Sequel%2FDatabase%3Aschema
-+ http://sequel.jeremyevans.net/rdoc/classes/Sequel/Database.html
-+ http://sequel.jeremyevans.net/rdoc/classes/Sequel/Model/ClassMethods.html
++ https://github.com/pepeul1191/tutoriales/blob/master/NodeJs.md
++ https://github.com/pepeul1191/tutoriales/blob/master/Servidores-Puertos.md
